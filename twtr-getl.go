@@ -300,11 +300,14 @@ func getFowardTLs(userid string, count int, eachcount int, loops int, waitsecond
 	}
 	for i := 1; ; i++ {
 
-		res, err := twapi.getTL(userid, eachcount, max, until)
+		res, last, err := twapi.getTL(userid, eachcount, max, until)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 			print_id()
 			os.Exit(2)
+		} else if res == nil {
+			fmt.Fprintln(os.Stderr, "no more record. break")
+			break
 		}
 		// jsonTweets, _ := json.Marshal(tweets) //test
 		// fmt.Println(string(jsonTweets))       //test
@@ -312,12 +315,6 @@ func getFowardTLs(userid string, count int, eachcount int, loops int, waitsecond
 		c := len(res.Tweets)
 		if c == 0 {
 			exitcode = 1
-			break
-		}
-		gotfirstid := str2twid(res.Tweets[0].ID)
-		if next_max > 0 && gotfirstid >= next_max {
-			fmt.Fprintln(os.Stderr, "same record. break")
-			fmt.Fprintln(os.Stderr, "get[0]ID=", gotfirstid, " next_max=", next_max)
 			break
 		}
 
@@ -349,7 +346,10 @@ func getFowardTLs(userid string, count int, eachcount int, loops int, waitsecond
 		if loops > 0 && i >= loops {
 			break
 		}
-
+		if last {
+			fmt.Fprintln(os.Stderr, "last record. break")
+			break
+		}
 		sleep(waitsecond) //?
 	}
 	return
@@ -370,10 +370,13 @@ func getReverseTLs(userid string, count int, loops int, waitsecond int64, since 
 	next_since = sinceid //default: same sinceid
 	if sinceid <= 0 {
 		fmt.Fprintf(os.Stderr, "since=%d. get %d tweet\n", sinceid, onetimemin)
-		res, err := twapi.getTL(userid, onetimemin, 0, 0)
+		res, _, err := twapi.getTL(userid, onetimemin, 0, 0)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 			print_id()
+			os.Exit(2)
+		} else if res == nil {
+			fmt.Fprintln(os.Stderr, "initial record not available")
 			os.Exit(2)
 		}
 		c := len(res.Tweets)
@@ -459,11 +462,14 @@ func getTLsince(userid string, since twidt) (tweets []*gotwtr.Tweet, userhash us
 	twapi.rewindQuery()
 	for i := 0; ; i++ {
  
-		res, err := twapi.getTL(userid, onetimemax, max_id, since - 1)
+		res, last, err := twapi.getTL(userid, onetimemax, max_id, since - 1)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 			print_id()
 			os.Exit(2)
+		} else if res == nil {
+			fmt.Fprintln(os.Stderr, "no more record. break")
+			break
 		}
 		c := len(res.Tweets)
 		if c == 0 {
@@ -485,6 +491,10 @@ func getTLsince(userid string, since twidt) (tweets []*gotwtr.Tweet, userhash us
 		}
  
 		if lastid <= since {
+			break
+		}
+		if last {
+			fmt.Fprintln(os.Stderr, "last record. break")
 			break
 		}
 		// 一度で取りきれなかった

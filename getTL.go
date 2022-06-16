@@ -27,7 +27,8 @@ type twSearchApi struct {
 	seq int
 }
 
-func (ta *twSearchApi) getTL(userID string, maxresult int, max twidt, since twidt) (twres *gotwtr.TweetsResponse, err error) {
+func (ta *twSearchApi) getTL(userID string, maxresult int, max twidt, since twidt) (twres *gotwtr.TweetsResponse, last bool, err error) {
+	last = false
 	client := ta.client
 	switch ta.t {
 	case tluser:
@@ -38,6 +39,9 @@ func (ta *twSearchApi) getTL(userID string, maxresult int, max twidt, since twid
 			if max > 0 {ta.tlopt.UntilID = twid2str(max)}
 			if since > 0 {ta.tlopt.SinceID = twid2str(since)}
 		} else {
+			if ta.usermeta.NextToken == "" {
+				break
+			}
 			ta.tlopt.PaginationToken = ta.usermeta.NextToken
 		}
 		if maxresult > 0 {ta.tlopt.MaxResults = maxresult}
@@ -46,7 +50,7 @@ func (ta *twSearchApi) getTL(userID string, maxresult int, max twidt, since twid
 
 		res, err := client.UserTweetTimeline(context.Background(), userID, &ta.tlopt)
 		if err != nil {
-			return nil, err
+			return nil, last, err
 		}
 		fmt.Fprintf(os.Stderr, "%s get len: %d meta(%d)\n", time.Now().Format("15:04:05"), len(res.Tweets), res.Meta.ResultCount)
 		tr := gotwtr.TweetsResponse{}
@@ -57,8 +61,8 @@ func (ta *twSearchApi) getTL(userID string, maxresult int, max twidt, since twid
 		tr.Detail   = res.Detail
 		tr.Type	    = res.Type
 		ta.usermeta = res.Meta
-		ta.usermeta = res.Meta
-		return &tr, err
+		if ta.usermeta.NextToken == "" { last = true }
+		return &tr, last, err
 	case tlhome:
 	case tlmention:
 		if ta.seq == 0 {
@@ -68,6 +72,9 @@ func (ta *twSearchApi) getTL(userID string, maxresult int, max twidt, since twid
 			if max > 0 {ta.tmopt.UntilID = twid2str(max)}
 			if since > 0 {ta.tmopt.SinceID = twid2str(since)}
 		} else {
+			if ta.usermeta.NextToken == "" {
+				break
+			}
 			ta.tmopt.PaginationToken = ta.usermeta.NextToken
 		}
 		if maxresult > 0 {ta.tmopt.MaxResults = maxresult}
@@ -76,7 +83,7 @@ func (ta *twSearchApi) getTL(userID string, maxresult int, max twidt, since twid
 
 		res, err := client.UserMentionTimeline(context.Background(), userID, &ta.tmopt)
 		if err != nil {
-			return nil, err
+			return nil, last, err
 		}
 		fmt.Fprintf(os.Stderr, "%s get len: %d meta(%d)\n", time.Now().Format("15:04:05"), len(res.Tweets), res.Meta.ResultCount)
 		tr := gotwtr.TweetsResponse{}
@@ -87,7 +94,8 @@ func (ta *twSearchApi) getTL(userID string, maxresult int, max twidt, since twid
 		tr.Detail   = res.Detail
 		tr.Type	    = res.Type
 		ta.usermeta = res.Meta
-		return &tr, err
+		if ta.usermeta.NextToken == "" { last = true }
+		return &tr, last, err
 	case tlrtofme:
 	case tllist:
 	case tlsearch: fallthrough
@@ -100,6 +108,9 @@ func (ta *twSearchApi) getTL(userID string, maxresult int, max twidt, since twid
 			if max > 0 {ta.sropt.UntilID = twid2str(max)}
 			if since > 0 {ta.sropt.SinceID = twid2str(since)}
 		} else {
+			if ta.srchmeta.NextToken == "" {
+				break
+			}
 			ta.sropt.NextToken = ta.srchmeta.NextToken
 		}
 		if maxresult > 0 {ta.sropt.MaxResults = maxresult}
@@ -113,7 +124,7 @@ func (ta *twSearchApi) getTL(userID string, maxresult int, max twidt, since twid
 			res, err = client.SearchAllTweets(context.Background(), query, &ta.sropt)
 		}
 		if err != nil {
-			return nil, err
+			return nil, last, err
 		}
 		fmt.Fprintf(os.Stderr, "%s get len: %d meta(%d)\n", time.Now().Format("15:04:05"), len(res.Tweets), res.Meta.ResultCount)
 		tr := gotwtr.TweetsResponse{}
@@ -124,9 +135,10 @@ func (ta *twSearchApi) getTL(userID string, maxresult int, max twidt, since twid
 		tr.Detail   = res.Detail
 		tr.Type	    = res.Type
 		ta.srchmeta = res.Meta
-		return &tr, err
+		if ta.srchmeta.NextToken == "" { last = true }
+		return &tr, last, err
 	}
-	return nil, err
+	return nil, true, nil
 }
 
 func (ta *twSearchApi) rewindQuery() {
