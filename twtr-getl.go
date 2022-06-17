@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -101,11 +100,11 @@ var twapi twSearchApi
 
 func main(){
 	var err error
-	tLtypePtr := flag.String("get", "", "TLtype: user, mention, search")
+	tLtypePtr := flag.String("get", "", "TLtype: user, mention, list, search")
 	screennamePtr := flag.String("user", "", "twitter @ screenname")
 	useridPtr := flag.String("userid", "0", "integer user Id")
-	// listnamePtr := flag.String("listname", "", "list name")
-	// listIDPtr := flag.Int64("listid", 0, "list ID")
+	listnamePtr := flag.String("listname", "", "list name")
+	listIDPtr := flag.String("listid", "0", "list ID")
 	queryPtr := flag.String("query", "", "Query String")
 	resulttypePtr := flag.String("restype", "", "result type: [recent]/all")
 	countPtr := flag.Int("count", 0, "tweet count. 5-800 ?")
@@ -120,8 +119,8 @@ func main(){
 	var tLtype = *tLtypePtr
 	var screenname = *screennamePtr
 	var userid = *useridPtr
-	// var listname = *listnamePtr
-	// var listID = *listIDPtr
+	var listname = *listnamePtr
+	var listID = *listIDPtr
 	var queryString = *queryPtr
 	var resulttype = *resulttypePtr
 	var count = *countPtr
@@ -144,17 +143,25 @@ func main(){
 	//case "home":    t = tlhome
 	case "mention": t = tlmention
 	//case "rtofme":  t = tlrtofme
-	//case "list":    t = tllist
+	case "list":    t = tllist
 	case "search":  t = tlsearch
 	case "":
-		if userid != "0" || screenname != "" {
+		if listID != "0" || listname != "" {
+			t = tllist
+			tLtype = "list"
+			fmt.Fprintln(os.Stderr, "assume -get=list")
+		} else if userid != "0" || screenname != "" {
 			t = tluser
 			tLtype = "user"
-			fmt.Fprintln(os.Stderr, "assume -get=user")
+			fmt.Fprintln(os.Stderr, "assume -get=%s", tLtype)
 		} else if queryString != "" {
 			t = tlsearch
 			tLtype = "search"
-			fmt.Fprintln(os.Stderr, "assume -get=search")
+			fmt.Fprintln(os.Stderr, "assume -get=%s", tLtype)
+		} else if listID != "0" {
+			t = tllist
+			tLtype = "list"
+			fmt.Fprintln(os.Stderr, "assume -get=%s", tLtype)
 		} else {
 			fmt.Fprintf(os.Stderr, "invalid type -get=%s\n", tLtype)
 			os.Exit(2)
@@ -169,20 +176,25 @@ func main(){
 
 	switch t {
 	case tluser: fallthrough
-	case tlmention:
+	case tlmention: fallthrough
+	case tllist:
+		if max_id != 0 || since_id != 0 || reverseflag {
+			fmt.Fprintf(os.Stderr, "-get=list can't handle -max_id, -since_id and -reverse\n")
+			os.Exit(2)
+		}
 		if userid != "0" {
 			fmt.Fprintf(os.Stderr, "user id=%s\n", userid)
 			if (screenname != "") {
 				fmt.Fprintln(os.Stderr, "screen name ignored.")
 			}
 		} else if screenname != "" {
+			fmt.Printf("convert %s to userID\n", screenname)
 			userid, err = name2id(screenname)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err.Error())
+			if userid == "" {
 				os.Exit(2)
 			}
 			fmt.Fprintf(os.Stderr, "user id=%s %s\n", userid, screenname)
-		} else {
+		} else if t != tllist {
 			fmt.Fprintf(os.Stderr, "no user id\n")
 			os.Exit(2)
 		}
@@ -193,6 +205,26 @@ func main(){
 		}
 	}
 
+	switch t {
+	case tllist:
+		if listID != "0" && listname != "" {
+			fmt.Fprintln(os.Stderr, "list name ignored.")
+			listname = ""
+		}
+		listID = listIDCheck(userid, listID, listname)
+		fmt.Fprintf(os.Stderr, "listIDCheck returns '%s'\n", listID)
+		if listID == "0" {
+			fmt.Fprintln(os.Stderr, "-listid not specified")
+			os.Exit(2)
+		}
+		userid = listID
+	default:
+		if listID != "0" {
+			fmt.Fprintln(os.Stderr, "-get=%s no need -listid", resulttype)
+			os.Exit(2)
+		}
+	}
+	
 	switch t {
 	case tlsearch:
 		if queryString == "" {
@@ -300,19 +332,14 @@ func getFowardTLs(userid string, count int, eachcount int, loops int, waitsecond
 	}
 	for i := 1; ; i++ {
 
-		res, last, err := twapi.getTL(userid, eachcount, max, until)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
+		res, c, last, err := twapi.getTL(userid, eachcount, max, until)
+		if err != nil || res == nil {
 			print_id()
 			os.Exit(2)
-		} else if res == nil {
-			fmt.Fprintln(os.Stderr, "no more record. break")
-			break
 		}
 		// jsonTweets, _ := json.Marshal(tweets) //test
 		// fmt.Println(string(jsonTweets))       //test
 		
-		c := len(res.Tweets)
 		if c == 0 {
 			exitcode = 1
 			break
@@ -370,16 +397,11 @@ func getReverseTLs(userid string, count int, loops int, waitsecond int64, since 
 	next_since = sinceid //default: same sinceid
 	if sinceid <= 0 {
 		fmt.Fprintf(os.Stderr, "since=%d. get %d tweet\n", sinceid, onetimemin)
-		res, _, err := twapi.getTL(userid, onetimemin, 0, 0)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
+		res, c, _, err := twapi.getTL(userid, onetimemin, 0, 0)
+		if err != nil || res == nil {
 			print_id()
 			os.Exit(2)
-		} else if res == nil {
-			fmt.Fprintln(os.Stderr, "initial record not available")
-			os.Exit(2)
 		}
-		c := len(res.Tweets)
 		if c == 0 {
 			fmt.Fprintln(os.Stderr, "Not 1 record available")
 			os.Exit(2)
@@ -462,16 +484,11 @@ func getTLsince(userid string, since twidt) (tweets []*gotwtr.Tweet, userhash us
 	twapi.rewindQuery()
 	for i := 0; ; i++ {
  
-		res, last, err := twapi.getTL(userid, onetimemax, max_id, since - 1)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
+		res, c, last, err := twapi.getTL(userid, onetimemax, max_id, since - 1)
+		if err != nil || res == nil {
 			print_id()
 			os.Exit(2)
-		} else if res == nil {
-			fmt.Fprintln(os.Stderr, "no more record. break")
-			break
 		}
-		c := len(res.Tweets)
 		if c == 0 {
 			zeror = true
 			break
@@ -612,21 +629,6 @@ func quoteText(fulltext string) (qtext string) {
 }
 
 
-func name2id(screen_name string) (id string, err error) {
-	ures, err := twapi.client.RetrieveSingleUserWithUserName(context.Background(), screen_name)
-	if err != nil {
-		return "", err
-	}
-	//jsonUser, _ := json.Marshal(users[0])
-	//fmt.Println(string(jsonUser))
-	//os.Exit(9)
-	
-	var userinfo *gotwtr.User = ures.User
- 
-	id = userinfo.ID
-	return id, nil
-}
-
 func connectTwitterApi() (client *gotwtr.Client) {
 	usr, _ := user.Current()
 	raw, error := ioutil.ReadFile(usr.HomeDir + "/twitter/twitterBearerToken.json")
@@ -646,7 +648,7 @@ func connectTwitterApi() (client *gotwtr.Client) {
 	// json.Unmarshal(raw, &twitterAccount)
 
 	client =  gotwtr.New(twitterBearerToken.BearerToken)
-	// client =  gotwtr.New(twitterBarerToken.BarerToken,
+	// client =  gotwtr.New(twitterBearerToken.BearerToken,
 	//  	gotwtr.WithConsumerKey(twitterAccount.ConsumerKey),
 	//  	gotwtr.WithConsumerSecret(twitterAccount.ConsumerSecret))
 	return client
@@ -736,34 +738,4 @@ type TwitterBearerToken struct {
 //  	TweetFields     []TweetField
 //  	UntilID         string
 //  	UserFields      []UserField
-// }
-
-// func (c *Client) RetrieveSingleUserWithUserName(ctx context.Context, userName string, opt ...*RetrieveUserOption) (*UserResponse, error) {
-//  	return retrieveSingleUserWithUserName(ctx, c.client, userName, opt...)
-// }
-//  
-// type UserResponse struct {
-//  	User     *User               `json:"data"`
-//  	Includes *UserIncludes       `json:"includes,omitempty"`
-//  	Errors   []*APIResponseError `json:"errors,omitempty"`
-//  	Title    string              `json:"title,omitempty"`
-//  	Detail   string              `json:"detail,omitempty"`
-//  	Type     string              `json:"type,omitempty"`
-// }
-//  
-// type User struct {
-//  	ID              string             `json:"id"`
-//  	Name            string             `json:"name"`
-//  	UserName        string             `json:"username"`
-//  	CreatedAt       string             `json:"created_at,omitempty"`
-//  	Description     string             `json:"description,omitempty"`
-//  	Entities        *UserEntity        `json:"entities,omitempty"`
-//  	Location        string             `json:"location,omitempty"`
-//  	PinnedTweetID   string             `json:"pinned_tweet_id,omitempty"`
-//  	ProfileImageURL string             `json:"profile_image_url,omitempty"`
-//  	Protected       bool               `json:"protected,omitempty"`
-//  	PublicMetrics   *UserPublicMetrics `json:"public_metrics,omitempty"`
-//  	URL             string             `json:"url,omitempty"`
-//  	Verified        bool               `json:"verified,omitempty"`
-//  	Withheld        *UserWithheld      `json:"withheld,omitempty"`
 // }

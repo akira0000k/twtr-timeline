@@ -5,12 +5,17 @@ Twitter timeline get command. API v2 with go-twtr library.
 $ ./twtr-getl -help
 Usage of ./twtr-getl:
 -get string
-	TLtype: user, mention, search
+	TLtype: user, mention, list and search
 
 -user string
 	twitter @ screenname
 -userid string
 	integer user Id (default "0")
+
+-listid string
+	list ID (default "0")
+-listname string
+	list name
 
 -query string
 	Query String
@@ -40,8 +45,14 @@ Usage of ./twtr-getl:
 ### ユーザーTL
     [-get=user]  -user=screenname / -userid=9999999
     -get=mention -user=screenname / -userid=9999999
+
+### リストTL
+    [-get=list] -listid=99999999
+    [-get=list] -listname=リスト名 / -listid=99999999  -user=screenname / -userid=9999999
+    -max_id -since_id -reverse は使えない
+
 ### 検索
-	[-get=search] -query=検索文字列 [-restype=recent/all]
+	[-get=search] -query=検索文字列
 
 ### 取得方向
     -reverse  (逆。最新待ち受け取得)  順方向は過去へ

@@ -1,0 +1,76 @@
+Akira@MBP-2 ~/go/src/github.com/akira0000k/twtr-timeline % go mod init
+go: creating new go.mod: module github.com/akira0000k/twtr-timeline
+go: to add module requirements and sums:
+	go mod tidy
+Akira@MBP-2 ~/go/src/github.com/akira0000k/twtr-timeline % vi go.mod
+Akira@MBP-2 ~/go/src/github.com/akira0000k/twtr-timeline % go mod tidy
+go: finding module for package github.com/sivchari/gotwtr
+go: found github.com/sivchari/gotwtr in github.com/sivchari/gotwtr v1.1.1
+Akira@MBP-2 ~/go/src/github.com/akira0000k/twtr-timeline % go build
+Akira@MBP-2 ~/go/src/github.com/akira0000k/twtr-timeline % ./twtr-getl -listname=01 -user=akira0000k -count=20 -each=5
+assume -get=list
+-get=list
+convert akira0000k to userID
+user id=147778233 akira0000k
+userID=[147778233] listid=[0] listname=[01]
+listId:  1286970534719152129  Name:  01アイドル
+listIDCheck returns '1286970534719152129'
+count=20
+each=5
+reverse=false
+loops=0
+max_id=0
+since_id=0
+wait=0
+wait default=5 (forward)
+21:44:42 get len: 5
+*Id: 1537777965445963776
+1537777965445963776	@RunKgMelon	or	1537777965445963776	@RunKgMelon	tw	"九州は小倉へしゅぱーつ\nつるつる社長の座る椅子だしカーテンで部屋作れる起きてますかｰてカーテンの隙間から(楽しい)おちゃもらえちゃった  \n\nルン うさこ ななみ\n          こと     ちよ           (席順)\n\nチームやこば ふぁいおｰ14時間 https://t.co/zEyfjLP25x"
+*Id: 1537777613623595009 1537755225548722176
+1537777613623595009	@maybe_maybe_24	RT	1537755225548722176	@Hug_koushiki	tw	"🐾あしたのライブ🐾\n\n明日はこちらです！\nぜひお越しくださいませ〜☂️🌀☔️\n\n▫️6/18 (土)\n▫️「遅れてゴメンネ！」\n▫️下北沢FlowersLOFT\n▫️11:00/11:15\n▫️前 ¥2500 / 当 ¥3000 (＋1D)\n▽チケットはこちら！\nhttps://t.co/BwzTJuDmJ7 https://t.co/DoM2ZsAFA2"
+*Id: 1537777601959186433
+1537777601959186433	@maybe_maybe_24	or	1537777601959186433	@maybe_maybe_24	tw	"明日はこちらーーー！遅れてゴメンネ！さんです！！！！\n土曜日の朝ハッピーにしちゃいます( ^_^)／❤︎ https://t.co/0gPQ4mCTG3"
+*Id: 1537777274258280448 1537772310245306368
+1537777274258280448	@maybe_maybe_24	RT	1537772310245306368	@micrawruga	Re	"【追加ゲスト発表！あと8日！】\n\n※Hugぅさん、赤井りんごさん、夢乃なこ（sommeil sommeil）さんをゲストに追加\n\n※重大発表あります！\n\n6/25(土)11:10～ 下北沢WAVER\n「定期公演 HIGH-HO vol.56」\nhttps://t.co/IJyAvW8Ocx\n\n入場チケット→\nhttps://t.co/v9D8Egnxvz\n\n#MICRAWRUGA #武井麻里子 https://t.co/hYKUcoLZID"
+*Id: 1537776691128713216
+1537776691128713216	@runaporitan	or	1537776691128713216	@runaporitan	tw	"人狼シリーズ！今回もやります！！！\nるなこはロジックに基づき頭脳戦で勝つのでよろしくお願いします✨✨🐺阿佐ヶ谷でお待ちしてるよ！！\n#アイドルと人狼 https://t.co/X5atCSnhjA https://t.co/qBOEUZJjxM"
+21:44:44 Sleep: 5.21:44:49 get len: 5
+*Id: 1537776546659741698
+1537776546659741698	@nonamera_	or	1537776546659741698	@nonamera_	tw	"⋆TODAY 22:00 ⋆\ncoming soon..."
+*Id: 1537776229629444096
+1537776229629444096	@runaporitan	or	1537776229629444096	@runaporitan	tw	"月末は #るなほし町内会議 ！\nただ今オーディションに挑戦している\n#るなほしサイハニ のことや今月のことなどお話出来たらと思います！\n\n企画コーナーの喜怒哀楽、どうかるなほしに感情を教えてください！よろしくお願いします！\n⬇️\nhttps://t.co/s7Oyfh0rQx https://t.co/DNrjd4uoUn"
+*Id: 1537774489768931328 1524015205960749056
+1537774489768931328	@oyurince	RT	1524015205960749056	@oyurince	tw	"今後の予定をツイートしたから\n保存・拡散RT・いいね♥️\n\nお願いします‼️🧸\n\nライブを生で観てもらいたい、\nもっと知ってもらいたい、\nSNSも頑張ります‼️\n\nそして私のことを是非フォローしてください‼️\n\n何と居酒屋とピザ屋以外はクビになったことありません‼️アイドル事務所処分歴ゼロです‼️信用‼️w https://t.co/ThqAb6Pr7n"
+*Id: 1537772860504444928
+1537772860504444928	@usatanworld	or	1537772860504444928	@usatanworld	tw	"🌴🌺✈🍍\n\n沖縄旅行VLOG✈️🌎✈️🌎更新しました🌞🌴🏄🎇🎆\n雨で海とかは入れなかったけど楽しかった雰囲気だけでもつたわればいいなー💗\n#うさたんわーるど\n\nhttps://t.co/AFHuf1ws10\n\n🌴🌺✈🍍 https://t.co/ITtRF6Lcmu"
+*Id: 1537772661702397952
+1537772661702397952	@keitarokamo	or	1537772661702397952	@keitarokamo	tw	"誰か見ても楽しさしかないライブだったと思います！\n #フィロのスLove4You"
+21:44:49 Sleep: 5.21:44:54 get len: 5
+*Id: 1537772091482570752
+1537772091482570752	@keitarokamo	or	1537772091482570752	@keitarokamo	tw	"なかなかに良い対バンかと思うので是非！ https://t.co/SMEOI8qTFx"
+*Id: 1537771719770791936
+1537771719770791936	@nantyaraidol	or	1537771719770791936	@nantyaraidol	tw	"御茶海あと３枠！ https://t.co/Qzn4y2SQ9b https://t.co/vA1Camatap"
+*Id: 1537768958702796801 1537768914867789824
+1537768958702796801	@mao_7	RT	1537768914867789824	@suzuka_fz1124	tw	"花王ビオレ WEBCM \n冷ドラ「#その熱を解き放て」\n第三話 熱くなってもいいんじゃない \n公開されました〜！！！！！\n\n浴衣姿🙈🙈\n\n夢、将来、友情、憧れ。\n自分の本当の気持ちに熱くなれーー！\n\nhttps://t.co/GuAxVhZrb2 https://t.co/8bxr4faE69"
+*Id: 1537763804607836160 1537761308489445376
+1537763804607836160	@mao_7	RT	1537761308489445376	@hinata_mao__	tw	"かわいい服きた૮ .  ̫ . ა 🖤 https://t.co/JzO68T8QFM"
+*Id: 1537762832967938048
+1537762832967938048	@usatanworld	or	1537762832967938048	@usatanworld	tw	"沖縄のVLOGの編集がやっとおわったぞー！！！！"
+21:44:54 Sleep: 5.21:45:00 get len: 3
+*Id: 1537759701198585856
+1537759701198585856	@mao_7	or	1537759701198585856	@mao_7	Re	"@tricotcafe これスッキリしてうまいですよね！！夏🍺"
+*Id: 1537758907417759745
+1537758907417759745	@_LoVeLy_aiue_O	or	1537758907417759745	@_LoVeLy_aiue_O	tw	"あしたは皆んな気になっている!?Hugぅでこちらに出演します！遅れてゴメンネ！やった~🫂2️⃣\n下北沢flowers loftきてね ✿=\nイェーイ^_^！🍬🍬🍬🍬🍬🍬🍬 https://t.co/xgozm9fGkQ https://t.co/crLZOCl6H5"
+*Id: 1537757893722001411 1537753524213260294
+1537757893722001411	@qotomi_amai	RT	1537753524213260294	@JxAxGxUxAxR	tw	"【NEW】6/28(火)19時スタート＊秋葉原MOGRAの月末お楽しみ会PURE IBIZA開催します！\n\nゲストDJはtrattorìaクルーのボス・デ♨️サルサさん・イビザ初登場のMASAMUNEさん・イケてるDJ cocchamの3名です🔥🔥🔥\n\nPURE IBIZA ver.153\n@秋葉原MOGRA\nhttps://t.co/TAAvbFDGcp\n\n#mogra #ibiza153 https://t.co/8TkaxJrFoz"
+21:45:00 Sleep: 5.21:45:05 get len: 5
+*Id: 1537754733414596609
+1537754733414596609	@tricotcafe	or	1537754733414596609	@tricotcafe	tw	"さてSAKA-SAMAの新譜を歩行飲酒しながら聴こう。 https://t.co/Epz6VRRjpA"
+*Id: 1537754484189069312
+1537754484189069312	@Liyu0109	or	1537754484189069312	@Liyu0109	tw	"🤍なんと...！！！\n\nLiyuuのファーストメジャー写真集『鼓動』重版が決定しました！\nみんなのおかげです🥹\n\n1stで重版なんて✨✨✨\n嬉しすぎる...！\nたくさんの応援ありがとうございます！\n\n#Liyuu鼓動 https://t.co/yKqjCK47Mb"
+--------
+-since_id=1537777965445963776
+-max_id=1537754484189069312
+Akira@MBP-2 ~/go/src/github.com/akira0000k/twtr-timeline % 
+
+Process shell finished
