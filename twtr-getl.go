@@ -30,9 +30,10 @@ func print_id() {
 	fmt.Fprintf(os.Stderr,   "-max_id=%d\n", next_max)
 }
 
-const onetimedefault = 10
+//const onetimedefault = 10
 const onetimemax = 100
 const onetimemin_t = 5
+const onetimemin_l = 1
 const onetimemin_s = 10
 var onetimemin = onetimemin_t
 const sleepdot = 5
@@ -107,7 +108,7 @@ func main(){
 	listIDPtr := flag.String("listid", "0", "list ID")
 	queryPtr := flag.String("query", "", "Query String")
 	resulttypePtr := flag.String("restype", "", "result type: [recent]/all")
-	countPtr := flag.Int("count", 0, "tweet count. 5-800 ?")
+	countPtr := flag.Int("count", 0, "tweet count. 5-3200 ?")
 	eachPtr := flag.Int("each", 0, "req count for each loop 5-100")
 	max_idPtr := flag.Int64("max_id", 0, "starting tweet id")
 	since_idPtr := flag.Int64("since_id", 0, "reverse start tweet id")
@@ -217,6 +218,7 @@ func main(){
 			fmt.Fprintln(os.Stderr, "-listid not specified")
 			os.Exit(2)
 		}
+		onetimemin = onetimemin_l
 		userid = listID
 	default:
 		if listID != "0" {
@@ -280,6 +282,7 @@ func main(){
 	} else {
 		if max_loop == 0 && since_id == 0 && count == 0 {
 			count = onetimemin
+			if count < 5 { count = 5 }
 			fmt.Fprintf(os.Stderr, "set forward default count=%d\n", count)
 		}
 		if count != 0 && count < onetimemin {
@@ -639,18 +642,17 @@ func connectTwitterApi() (client *gotwtr.Client) {
 	var twitterBearerToken TwitterBearerToken
 	json.Unmarshal(raw, &twitterBearerToken)
 
-	// raw, error = ioutil.ReadFile(usr.HomeDir + "/twitter/twitterAccount.json")
-	// if error != nil {
-	//  	fmt.Fprintln(os.Stderr, error.Error())
-	//  	os.Exit(2)
-	// }
-	// var twitterAccount TwitterAccount
-	// json.Unmarshal(raw, &twitterAccount)
+	raw, error = ioutil.ReadFile(usr.HomeDir + "/twitter/twitterAccount.json")
+	if error != nil {
+		client =  gotwtr.New(twitterBearerToken.BearerToken)
+	} else {
+		var twitterAccount TwitterAccount
+		json.Unmarshal(raw, &twitterAccount)
 
-	client =  gotwtr.New(twitterBearerToken.BearerToken)
-	// client =  gotwtr.New(twitterBearerToken.BearerToken,
-	//  	gotwtr.WithConsumerKey(twitterAccount.ConsumerKey),
-	//  	gotwtr.WithConsumerSecret(twitterAccount.ConsumerSecret))
+		client =  gotwtr.New(twitterBearerToken.BearerToken,
+			gotwtr.WithConsumerKey(twitterAccount.ConsumerKey),
+			gotwtr.WithConsumerSecret(twitterAccount.ConsumerSecret))
+	}
 	return client
 }
 

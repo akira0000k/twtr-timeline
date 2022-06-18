@@ -31,7 +31,7 @@ Usage of ./twtr-getl:
 	reverse start tweet id
 
 -count int
-	tweet count. 5-800 ?
+	tweet count. 5-3200 ?
 -each int
 	req count for each loop 5-100
 -loops int
