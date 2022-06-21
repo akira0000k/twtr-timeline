@@ -1,7 +1,7 @@
 package main
 
 import (
-	//"encoding/json"
+	"encoding/json"
 	"context"
 	"fmt"
 	"strconv"
@@ -27,6 +27,7 @@ type twSearchApi struct {
 	sropt gotwtr.SearchTweetsOption
 	nextToken string
 	seq int
+	jsonp bool
 }
 
 func (ta *twSearchApi) getTL(userID string, maxresult int, max twidt, since twidt) (twres *gotwtr.TweetsResponse, count int, last bool, err error) {
@@ -62,8 +63,10 @@ func (ta *twSearchApi) getTL(userID string, maxresult int, max twidt, since twid
 			fmt.Fprintln(os.Stderr, "res == nil")
 			break
 		}
-		//jsonraw, _ := json.Marshal(res) //test
-		//fmt.Println(string(jsonraw))	//test
+		if ta.jsonp {
+			jsonraw, _ := json.MarshalIndent(res, "", "    ")
+			fmt.Println(string(jsonraw))
+		}
 		if res.Errors != nil {
 			fmt.Fprintf(os.Stderr, "%s: %s\n", res.Title, res.Detail)
 			for _, e := range res.Errors {
@@ -115,6 +118,10 @@ func (ta *twSearchApi) getTL(userID string, maxresult int, max twidt, since twid
 			fmt.Fprintln(os.Stderr, "res == nil")
 			break
 		}
+		if ta.jsonp {
+			jsonraw, _ := json.MarshalIndent(res, "", "    ")
+			fmt.Println(string(jsonraw))
+		}
 		if res.Errors != nil {
 			fmt.Fprintf(os.Stderr, "%s: %s\n", res.Title, res.Detail)
 			for _, e := range res.Errors {
@@ -163,6 +170,10 @@ func (ta *twSearchApi) getTL(userID string, maxresult int, max twidt, since twid
 		if res == nil {
 			fmt.Fprintln(os.Stderr, "res == nil")
 			break
+		}
+		if ta.jsonp {
+			jsonraw, _ := json.MarshalIndent(res, "", "    ")
+			fmt.Println(string(jsonraw))
 		}
 		if res.Errors != nil {
 			fmt.Fprintf(os.Stderr, "%s: %s\n", res.Title, res.Detail)
@@ -224,6 +235,10 @@ func (ta *twSearchApi) getTL(userID string, maxresult int, max twidt, since twid
 		if res == nil {
 			fmt.Fprintln(os.Stderr, "res == nil")
 			break
+		}
+		if ta.jsonp {
+			jsonraw, _ := json.MarshalIndent(res, "", "    ")
+			fmt.Println(string(jsonraw))
 		}
 		if res.Errors != nil {
 			fmt.Fprintf(os.Stderr, "%s: %s\n", res.Title, res.Detail)

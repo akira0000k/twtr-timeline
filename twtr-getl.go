@@ -115,6 +115,7 @@ func main(){
 	reversePtr := flag.Bool("reverse", false, "reverse output. wait newest TL")
 	loopsPtr := flag.Int("loops", 0, "get loop max")
 	waitPtr := flag.Int64("wait", 0, "wait second for next loop")
+	jsonPtr := flag.Bool("json", false, "dump json format")
 	// nortPtr := flag.Bool("nort", false, "not include retweets")
 	flag.Parse()
 	var tLtype = *tLtypePtr
@@ -131,6 +132,7 @@ func main(){
 	var reverseflag = *reversePtr
 	var max_loop = *loopsPtr
 	var waitsecond = *waitPtr
+	var jsonp = *jsonPtr
 	// var includeRTs = ! *nortPtr
 	
 	if flag.NArg() > 0 {
@@ -154,15 +156,15 @@ func main(){
 		} else if userid != "0" || screenname != "" {
 			t = tluser
 			tLtype = "user"
-			fmt.Fprintln(os.Stderr, "assume -get=%s", tLtype)
+			fmt.Fprintf(os.Stderr, "assume -get=%s\n", tLtype)
 		} else if queryString != "" {
 			t = tlsearch
 			tLtype = "search"
-			fmt.Fprintln(os.Stderr, "assume -get=%s", tLtype)
+			fmt.Fprintf(os.Stderr, "assume -get=%s\n", tLtype)
 		} else if listID != "0" {
 			t = tllist
 			tLtype = "list"
-			fmt.Fprintln(os.Stderr, "assume -get=%s", tLtype)
+			fmt.Fprintf(os.Stderr, "assume -get=%s\n", tLtype)
 		} else {
 			fmt.Fprintf(os.Stderr, "invalid type -get=%s\n", tLtype)
 			os.Exit(2)
@@ -174,15 +176,12 @@ func main(){
 	fmt.Fprintf(os.Stderr, "-get=%s\n", tLtype)
 	
 	twapi.client = connectTwitterApi()
-
+	twapi.jsonp = jsonp
+	
 	switch t {
 	case tluser: fallthrough
 	case tlmention: fallthrough
 	case tllist:
-		if max_id != 0 || since_id != 0 || reverseflag {
-			fmt.Fprintf(os.Stderr, "-get=list can't handle -max_id, -since_id and -reverse\n")
-			os.Exit(2)
-		}
 		if userid != "0" {
 			fmt.Fprintf(os.Stderr, "user id=%s\n", userid)
 			if (screenname != "") {
@@ -208,6 +207,10 @@ func main(){
 
 	switch t {
 	case tllist:
+		if max_id != 0 || since_id != 0 || reverseflag {
+			fmt.Fprintf(os.Stderr, "-get=list can't handle -max_id, -since_id and -reverse\n")
+			os.Exit(2)
+		}
 		if listID != "0" && listname != "" {
 			fmt.Fprintln(os.Stderr, "list name ignored.")
 			listname = ""
